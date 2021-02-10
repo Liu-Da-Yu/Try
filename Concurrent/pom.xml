@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>tou.dayu</groupId>
+    <artifactId>concurrent</artifactId>
+    <version>0.0.1</version>
+    <name>concurrent</name>
+    <packaging>jar</packaging>
+    <description>用来学习高并发与多线程</description>
+
+    <parent>
+        <groupId>top.dayu</groupId>
+        <artifactId>try</artifactId>
+        <version>0.0.1</version>
+    </parent>
+
+    <properties>
+        <maven.comiler.source>1.8</maven.comiler.source>
+        <maven.comiler.targer>1.8</maven.comiler.targer>
+    </properties>
+
+    <dependencies>
+
+
+    </dependencies>
+
+</project>
