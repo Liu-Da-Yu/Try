@@ -35,7 +35,6 @@ public class Test1 {
         t.start();
 
 
-
         //第二种方法创建一个任务交给线程，这样更灵活
         Runnable run = new Runnable() { //任务对象
             @Override

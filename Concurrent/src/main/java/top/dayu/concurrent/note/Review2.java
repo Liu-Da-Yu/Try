@@ -1,5 +1,10 @@
 package top.dayu.concurrent.note;
 
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * @Classname Review2
  * @Description 视频第四章的内容
@@ -17,7 +22,8 @@ public class Review2 {
      synchronize： 俗称对象锁
      synchronize(对象){//线程1进去的时候获得了一把锁，没执行完的时候线程2进不去会阻塞，状态为blocked
      //临届区    外面有锁，只有一个线程执行完毕了，才能执行下一个线程
-     //参数可以随意指定一个空对象比如： static Object lock = new Object();
+     //参数可以随意指定一个空对象比如： static final Object lock = new Object();
+     //要设置称为final的，防止在别的地方更改
      }
 
      注意： 1：如果某个线程在上锁的代码中运行着即使时间片用完了，他也是有钥匙的，别的线程也进不去。
@@ -80,6 +86,7 @@ public class Review2 {
 
     //注意: wait方法： 只有获得锁的线程才能调用wait方法
     static final Object Lock = new Object();
+
     public void test3() {
         new Thread(() -> {
             try {
@@ -90,7 +97,7 @@ public class Review2 {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        },"t1").start();
+        }, "t1").start();
     }
 
     /**
@@ -109,24 +116,143 @@ public class Review2 {
      //另外一个叫醒的线程使用notifyAll叫醒
 
 
+     同步模式之保护性暂停：
+     一个线程使用一个线程的结果使用Guarded Suspension（join的底层用的就是这个）
+     如果结果不断的从一个线程到一个线程就使用消息队列（生产者/消费者）
 
+     实现的桥梁就是GuardedObject(保护对象) 见以下代码示例：
+     */
 
+    private void testGuardedObject() {
 
+        //模拟使用GuardedObject
+        GuardedObject guardedObject = new GuardedObject(1);
+        new Thread(() -> {
+            Object o = guardedObject.get(1);
+            System.out.println("另一个线程执行完获得的结果是：" + o);
+        }, "t1").start();
 
-
-
-
-
-
-
-    */
-
-
-
-
-    public static void main(String[] args) {
+        new Thread(() -> {
+            //比如执行一段读取文件的代码，当前线程就会进入阻塞状态，
+            //执行完以后，会把结果放到guardedObject中，里面的方法会唤醒使用结果的线程
+            guardedObject.complete("读取完文件得到的结果");
+        }, "t2").start();
 
     }
 
 
+    public static void main(String[] args) {
+        //测试GuardedObject  这种设计模式就是一一对应的
+        for (int i = 0; i < 3; i++) {
+            new People().start();
+        }
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        for (Integer id : MailBoxes.getIds()) {
+            new Postman(id, "内容为：" + id).start();
+        }
+    }
+}
+
+//正确的使用wait/notify来构造一个桥梁用来传输线程间的结果
+//还可以增加一个超时等待的配置。( 详见json的底层代码，几乎一摸一样)
+class GuardedObject {
+    private Object response;
+
+    private int id;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public GuardedObject(int id) {
+        this.id = id;
+    }
+
+    public Object get(long timeout) {
+        synchronized (this) {
+            while (response == null) {
+                try {
+                    this.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            return response;
+        }
+    }
+
+    public void complete(Object response) {
+        synchronized (this) {
+            this.response = response;
+            this.notifyAll();
+        }
+    }
+}
+
+//用来解耦
+class MailBoxes {
+
+    private static Map<Integer, GuardedObject> boxes = new Hashtable<>();
+
+    private static int id = 1;
+
+    private static synchronized int generateId() {
+        //对MailBoxes类的所有实例都加锁，产生唯一的id
+        return id++;
+    }
+
+    public static GuardedObject createGuardedObject() {
+        GuardedObject go = new GuardedObject(generateId());
+        // boxes = new Hashtable 所以put方法是线程安全的
+        boxes.put(go.getId(), go);
+        return go;
+    }
+
+    public static Set<Integer> getIds() {
+        return boxes.keySet();
+    }
+
+    public static GuardedObject getGuardedObject(int id) {
+        //注意这个地方使用remove而不是get，因为留着也占内存，不如删掉
+        return boxes.remove(id);
+    }
+
+
+}
+
+
+class People extends Thread {
+    @Override
+    public void run() {
+        //收信
+        GuardedObject go = MailBoxes.createGuardedObject();
+        Object o = go.get(5000);
+
+    }
+}
+
+class Postman extends Thread {
+    private int id;
+    private String mail;
+
+    public Postman(int id, String mail) {
+        this.id = id;
+        this.mail = mail;
+    }
+
+    @Override
+    public void run() {
+        //送信
+        GuardedObject guardedObject = MailBoxes.getGuardedObject(id);
+        guardedObject.complete(mail);
+
+    }
 }

@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @Classname Review
- * @Description TODO
+ * @Description 切记一定要多看看本课程的讲义，多背背！！！！！！！
  * @Date 2021/2/10 14:28
  * @Created by ldy
  */
@@ -21,7 +21,7 @@ public class Review1 {
      线程运行原理：
      jvm是由 堆 栈 方法区组成的  其中栈是分配给线程使用的，栈由栈帧组成，每个方法调用都会产生一个栈帧内存
      同一个线程只能有一个活动着的栈帧（frame）
-     方法中使用的变量都存在堆里面，方法执行完内存就被释放了，堆内存需要等待垃圾回收
+     方法中使用的变量都存在栈里面，方法执行完内存就被释放了，对象都存在堆里面；堆内存需要等待垃圾回收
 
      每个线程的内存都是独立的互不干扰
 
@@ -196,7 +196,7 @@ public class Review1 {
         Thread t4 = new Thread("t4") {
             @Override
             public void run() {
-                synchronized (Test1.class) {
+                synchronized (Review2.class) {
                     try {
                         Thread.sleep(100000);
                     } catch (InterruptedException e) {
@@ -227,7 +227,7 @@ public class Review1 {
             @Override
             public void run() {
                 //因为t4上了锁，并且在睡眠，所以当前线程永远拿不到锁
-                synchronized (Test1.class) {
+                synchronized (Review2.class) {
                     try {
                         Thread.sleep(100000);
                     } catch (InterruptedException e) {
