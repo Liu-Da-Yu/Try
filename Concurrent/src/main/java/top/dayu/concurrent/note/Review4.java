@@ -1,5 +1,11 @@
 package top.dayu.concurrent.note;
 
+import sun.misc.Unsafe;
+import top.dayu.concurrent.temp.ConnectionPool;
+import java.lang.reflect.Field;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 /**
  * @Classname Review4
  * @Description TODO
@@ -62,7 +68,7 @@ public class Review4 {
      JUC中提供了一些支持包括：
      原子整数：
      AtomicBoolean/AtomicInteger/AtomicLong
-      -> updateAndGet
+     -> updateAndGet
 
      原子引用：
      AtomicReference/AtomicMarkableReference/AtomicStampedReference
@@ -78,24 +84,123 @@ public class Review4 {
      /AtomicIntegerFieldUpdater/AtomicReferenceFieldUpdater/AtomicLongFieldUpdater
 
      原子累加器：
-        LongAdder.java java8提供的专门用来累加的，性能更高；
-        原理就是会设置多个累加变量，然后再汇总，这就导致cas设置值失败的概率降低，速度更快
+     // todo 源码 LongAdder.java java8提供的专门用来累加的，性能更高；
+     原理就是会设置多个累加变量，然后再汇总，这就导致cas设置值失败的概率降低，速度更快
 
 
      cas也可以加锁 就是定义一个状态 0没加锁 1加锁 写两个方法  用来加锁和解锁修改这个状态即可
      很多底层实现代码都是这么用的，但是自己别这么写，因为有风险。
 
 
+     //此注解用来防止缓存行的伪共享
+     @sun.misc.Contended public class Review4 {}
 
+     缓存行：
+     伪共享：
 
+     cpu到不同地方读取数据的时钟周期
+     寄存器(就在cpu内部)  1个cycle(1个时钟周期)(4GHZ 的cpu约为0.25ns)
+     一级缓存 3-4 个cycle
+     二级缓存 10-20 个cycle
+     三级缓存 40-45 个cycle
+     内存   120-240 个cycle
+     由于cpu执行和内存速度的差异巨大，所以先预读数据到缓存中。时间空间的局部性原理
+     而缓存以缓存行为单位，大约64字节；但是缓存存在着一个问题就是内存中的数据被两个cpu使用，
+     并且其中一个cpu修改了这个属性值，那么必须要要让另一个cpu中缓存的数据失效。
 
+     练拳不练功 到老一场空
 
-
+     Unsafe对象提供了底层的操作内存和线程的方法，对象不能直接调用，只能通过反射获得
 
 
      */
 
-    public static void main(String[] args) {
 
+    public static void test2() {
+        try {
+            Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+            theUnsafe.setAccessible(true);//允许访问私有的
+            Unsafe unsafe = (Unsafe) theUnsafe.get(null);
+            System.out.println(unsafe);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     第七章： 不可变(如果一个变量是不可变的，即使被共享，多线程下也不会有问题)
+     如果多个线程访问一个可变的对象，就有可能会出问题，参考以下实例：
+     */
+
+    public static void test() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        for (int i = 0; i < 100; i++) {
+            new Thread(() -> {
+                try {
+                    System.out.println(sdf.parse("1951-04-21"));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+        }
+    }
+
+    /**
+     Exception in thread "Thread-1" Exception in thread "Thread-0" java.lang.NumberFormatException: multiple points
+     at sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1890)
+     at sun.misc.FloatingDecimal.parseDouble(FloatingDecimal.java:110)
+     at java.lang.Double.parseDouble(Double.java:538)
+     at java.text.DigitList.getDouble(DigitList.java:169)
+     at java.text.DecimalFormat.parse(DecimalFormat.java:2056)
+     at java.text.SimpleDateFormat.subParse(SimpleDateFormat.java:1869)
+     at java.text.SimpleDateFormat.parse(SimpleDateFormat.java:1514)
+     at java.text.DateFormat.parse(DateFormat.java:364)
+     at top.dayu.concurrent.note.Review4.lambda$test$0(Review4.java:123)
+     at java.lang.Thread.run(Thread.java:745)
+     java.lang.NumberFormatException: multiple points
+     at sun.misc.FloatingDecimal.readJavaFormatString(FloatingDecimal.java:1890)
+     at sun.misc.FloatingDecimal.parseDouble(FloatingDecimal.java:110)
+     at java.lang.Double.parseDouble(Double.java:538)
+     at java.text.DigitList.getDouble(DigitList.java:169)
+     at java.text.DecimalFormat.parse(DecimalFormat.java:2056)
+     at java.text.SimpleDateFormat.subParse(SimpleDateFormat.java:1869)
+     at java.text.SimpleDateFormat.parse(SimpleDateFormat.java:1514)
+     at java.text.DateFormat.parse(DateFormat.java:364)
+     at top.dayu.concurrent.note.Review4.lambda$test$0(Review4.java:123)
+     at java.lang.Thread.run(Thread.java:745)
+
+     可变类如果不加保护就会出现问题
+
+     可以使用DateTimeFormatter对象 该对象是线程安全的
+
+     不可变对象的设计：
+     String类用final修饰，防止子类修改，属性要么使用final要么不提供set方法。
+     保护性拷贝：
+     String的char数组构造方法，为了防止传递的引用的对象发生变化，在char构造时会拷贝一份，使其以后不能改变
+
+
+
+    设计模式之享元模式： 当需要重用数量有限的同一类对象时
+     jdk中最典型的使用享元模式就是 包装类Long.valueOf(); Integer.valueOf();
+     Byte/Short/Long 如果数据在-128-127之间会从缓存中取，否则才会创建。
+     Char缓存0-127 ； Boolean缓存了true和false ；Integer可以通过虚拟机参数修改缓存的最大值
+     还有BigDecimal BigInteger String都使用了享元模式
+     以上所有的类都是线程安全的，原子的，但是注意多个方法的组合并不是原子的不是线程安全的。
+     // todo String享元模式的串池机制
+
+     重点看 连接池的代码类 好好体会 收获颇多 {@link ConnectionPool }
+
+
+     final关键字的原理： 就是在final修饰的变量赋值后，底层指令中会加入一个写屏障；
+     写屏障能保证写屏障之前的指令不会被重排序到写屏障指令后面去；并且能同步变量值到内存，保证可见性。
+     一个变量假如是 int i = 0 ； 那么底层会分为两步先开辟空间 int i 然后第二步设置为20
+     然后多个线程访问时，有可能会出现某个线程读取到了之前的值。加上final 就不会出现这个情况了；
+
+     */
+
+
+    public static void main(String[] args) {
+        test2();
     }
 }

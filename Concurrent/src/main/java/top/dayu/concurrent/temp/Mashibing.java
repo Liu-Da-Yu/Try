@@ -2,7 +2,7 @@ package top.dayu.concurrent.temp;
 
 /**
  * @Classname Mashibing
- * @Description TODO
+ * @Description 马士并
  * @Date 2021/2/19 20:46
  * @Created by ldy
  */
@@ -10,6 +10,18 @@ public class Mashibing {
 
 
     /**
+
+     技术面试： 基础+熟悉领域+应变能力+逻辑思维+学习方式+技术热情+兴趣
+     HR面试：展示自己的价值观
+
+     面试的star( situation task action result )法则：
+     S: 情景 背景 来龙去脉 参与人 你的角色 面临的挑战
+     T: 任务 目标
+     A: 行动 怎么想的 怎么做的 步骤 计划 遇到过什么僵局
+     R: 结果 拉新 留活 QPS 并发量 节省了多少资源 给公司带来的价值 给自己带来的价值
+
+     用细节和数字量化自己的成果
+
 
      案例： 避免超卖：10件商品11个人买到了  少买： 10件商品 11个人买 只有9人买到了
 
