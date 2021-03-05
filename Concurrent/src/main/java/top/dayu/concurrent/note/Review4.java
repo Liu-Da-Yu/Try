@@ -2,9 +2,12 @@ package top.dayu.concurrent.note;
 
 import sun.misc.Unsafe;
 import top.dayu.concurrent.temp.ConnectionPool;
+import top.dayu.concurrent.temp.TestAccount;
+
 import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @Classname Review4
@@ -21,8 +24,6 @@ public class Review4 {
      所有线程共享的数据：成员变量，静态的成员变量
      工作内存：
      每个线程私有的数据： 局部变量等
-
-
 
 
      JMM体现在以下几个方面：
@@ -43,16 +44,14 @@ public class Review4 {
      单线程下不会有问题，因为单线程排序的都是不影响结果的排序。
      使用关键字volatile可以避免(volatile中的读屏障 写屏障)
 
-     DCL：  Double-Checked Locking
+     DCL：  Double-Checked Locking 双重检查锁
      */
-
-
 
 
     /**
      第六章： 无锁并发(cas+volatile)（cas是无锁并发，非阻塞并发）
 
-     可以不上锁来保证共享资源的安全性 重点了解这个类：  @link{TestAccount} -> AtomicInteger
+     可以不上锁来保证共享资源的安全性 重点了解这个类：  {@link TestAccount } ->  {@link AtomicInteger }
      boolean compareAndSet(prev, next)  重点是compareAndSet方法，简称就是cas，意思就是比较并设置
      compareAndSet在cpu指令级别是原子的，但不是用锁实现的
      compareAndSet想要更新成功必须满足一个条件就是要修改的值没有被别的线程改变过。
@@ -116,6 +115,8 @@ public class Review4 {
      练拳不练功 到老一场空
 
      Unsafe对象提供了底层的操作内存和线程的方法，对象不能直接调用，只能通过反射获得
+
+
 
 
      */
