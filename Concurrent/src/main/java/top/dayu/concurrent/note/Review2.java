@@ -46,7 +46,6 @@ public class Review2 {
      }
      }
 
-
      成员变量/静态变量只要是共享的并且有写入的操作就需要考虑线程安全问题；
      局部变量是线程安全的，因为每个线程执行的时候都会把这个变量存到自己的线程内存中，没有发生共享；
      但局部变量引用的对象逃离了方法的作用范围，也需要考虑线程安全问题；
@@ -65,7 +64,6 @@ public class Review2 {
      java对象(以32位虚拟机为例)
      普通对象：object header 64bit    MarkWord 32bit       KlassWord 32bit
      数组对象多了一个长度: array length 32bit
-
 
      //todo  synchronize底层原理 Monitor 和 偏向锁 轻量级锁 都和synchronize关键字有关
      //synchronize的底层原理就是使用操作系统提供的Monitor来上锁，Monitor是重量级的锁；

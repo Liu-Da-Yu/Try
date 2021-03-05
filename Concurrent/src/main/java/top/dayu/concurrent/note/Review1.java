@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 public class Review1 {
 
     /**
+
      查看进程线程
      windows： tasklist taskkill
      linux：kill杀死进程
@@ -51,8 +52,14 @@ public class Review1 {
 
      这是一个死循环的写法： for(;;){}
 
-
      sleep：避免空转，写一个死循环里面要是不睡眠，cpu会爆，加一个sleep50 可以有效地降低cpu使用率
+
+     sleep和wait:
+     这两个方法来自不同的类分别是Thread和Object
+     最主要是sleep方法没有释放锁，而wait方法释放了锁，使得其他线程可以使用同步控制块或者方法(锁代码块和方法锁)。
+     wait，notify和notifyAll只能在同步控制方法或者同步控制块里面使用，而sleep可以在任何地方使用(使用范围)
+     sleep必须捕获异常，而wait，notify和notifyAll不需要捕获异常
+
 
      join：等待线程结束（那个线程调用，等待哪个线程）
      还可以设置等待时间可以限制最长等待时间 join的底层原理就是wait方法
@@ -115,7 +122,6 @@ public class Review1 {
      suppend 挂起暂停线程 用wait替代
      resume 恢复线程运行 用notifide来代替
 
-
      只要还有一个线程在运行，java进程就不会结束
      守护线程：只要其他非守护线程运行结束了，即使守护线程还没运行完，也会强制结束。
      主线程和创建的线程默认都是非守护线程
@@ -148,7 +154,7 @@ public class Review1 {
      Thread. public enum State{
      NEW: 线程刚被创建，但是还没有调用start方法
      RUNNABLE: 相当于系统层面的 可运行/运行/阻塞
-     BLOCKED(): WAITING(join): TIMED_WAITING(sleep):
+     BLOCKED(): WAITING( join wait ): TIMED_WAITING(sleep):
      这三种都是javaAPI层面对阻塞状态的细分，后面会在状态转换中讲到
      TERMINATED: 终止状态
      }
