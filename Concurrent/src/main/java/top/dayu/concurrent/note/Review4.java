@@ -22,6 +22,9 @@ public class Review4 {
      工作内存：
      每个线程私有的数据： 局部变量等
 
+
+
+
      JMM体现在以下几个方面：
      原子性：保证指令不会受到线程上下文切换带来的影响
      可见性：保证指令不会受到cpu缓存的影响
@@ -42,6 +45,8 @@ public class Review4 {
 
      DCL：  Double-Checked Locking
      */
+
+
 
 
     /**

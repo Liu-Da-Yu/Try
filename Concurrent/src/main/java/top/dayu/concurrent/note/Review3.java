@@ -2,6 +2,7 @@ package top.dayu.concurrent.note;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -11,6 +12,11 @@ import java.util.concurrent.locks.ReentrantLock;
  * @Created by ldy
  */
 public class Review3 {
+
+    public  void test () {
+        LockSupport.park();
+    }
+
     /**
      之前的消息中间件是进程间通信的
 
@@ -19,8 +25,12 @@ public class Review3 {
      //恢复  unpark在park以后调用也可以；并且不需要配合monitor；
      LockSupport.unpark(t1);
 
-     park的底层原理是每个线程都有一个Parker对象，是用c语言写的。
+     park翻译过来即是停车的意思，我们可以这样理解，每个被应用程序启动的线程就是一辆在计算机总线赛道上奔驰着的跑车，
+     当你想让某台车停下来休息会时那么就给它一个park信号，它就会立即停到赛道旁边的停车位中，
+     当你想让它从停车位中驶出并继续在赛道上奔跑时再给它一个unpark信号即可
 
+
+     park的底层原理是每个线程都有一个Parker对象，是用c语言写的。
 
 
      线程活跃性：死锁 活锁 饥饿者 都可以使用ReentrantLock来解决(entrant:进入 re：重新，再次)
@@ -119,6 +129,33 @@ public class Review3 {
      ReentrantLock为juc工具包中的类
      相比于synchronized的优点有：可中断 可设置超时时间 可设置为公平锁 支持多个条件变量
 
+
+     synchronized 和 ReentrantLock 两者的共同点：
+     1. 都是用来协调多线程对共享对象、变量的访问
+     2. 都是可重入锁，同一线程可以多次获得同一个锁
+     3. 都保证了可见性和互斥性
+     两者的不同点：
+     1. ReentrantLock 显示的获得、释放锁，synchronized 隐式获得释放锁
+     2. ReentrantLock 可响应中断、可轮回，synchronized 是不可以响应中断的，为处理锁的
+     不可用性提供了更高的灵活性
+     3. ReentrantLock 是 API 级别的，synchronized 是 JVM 级别的
+     4. ReentrantLock 可以实现公平锁
+     5. ReentrantLock 通过 Condition 可以绑定多个条件
+     6. 底层实现不一样， synchronized 是同步阻塞，使用的是悲观并发策略，lock 是同步非阻
+     塞，采用的是乐观并发策略
+     7. Lock 是一个接口，而 synchronized 是 Java 中的关键字，synchronized 是内置的语言
+     实现。
+     8. synchronized 在发生异常时，会自动释放线程占有的锁，因此不会导致死锁现象发生；
+     而 Lock 在发生异常时，如果没有主动通过 unLock()去释放锁，则很可能造成死锁现象，
+     因此使用 Lock 时需要在 finally 块中释放锁。
+     9. Lock 可以让等待锁的线程响应中断，而 synchronized 却不行，使用 synchronized 时，
+     等待的线程会一直等待下去，不能够响应中断。
+     10. 通过 Lock 可以知道有没有成功获取锁，而 synchronized 却无法办到。
+     11. Lock 可以提高多个线程进行读操作的效率，既就是实现读写锁等
+
+
+
+
      //语法
      ReentrantLock reentrantLock = new ReentrantLock();
      reentrantLock.lock();
@@ -164,11 +201,6 @@ public class Review3 {
      同步： 使用wait/notify或者Lock的条件变量来达到线程间的通信效果
      其他的关键字底层用的都是monitor都是用的c++写的
      只有ReentrantLock相当于是在java层面实现来monitor
-
-
-
-
-
 
 
     */
