@@ -4,6 +4,7 @@ import top.dayu.concurrent.temp.TestPool;
 import top.dayu.concurrent.temp.TestSemaphore;
 import top.dayu.concurrent.temp.TestStampedLock;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.StampedLock;
@@ -91,21 +92,21 @@ public class Review5 {
      Semaphore:(sei 么 for) 信号量：用来限  同时访问资源的线程的上限
      //todo 重点看看  {@link TestSemaphore }
 
+     CountDownLatch
+
+
     */
     private void test123(){
 
         //上限为3个线程（相当于有 3个许可证）
         Semaphore semaphore = new Semaphore(3);
 
-
-
-
-
-
-
-
+        CountDownLatch countDownLatch =new CountDownLatch(123);
     }
 
+    /**
+
+    */
 
 
 
