@@ -42,10 +42,6 @@ public class Review6 {
         //先检查有没有这个key1这个key 如果没有就连同1 一块put进去
         concurrentHashMap.computeIfAbsent("key1",(x)->1);
 
-
-
-
-
     }
 
 }
