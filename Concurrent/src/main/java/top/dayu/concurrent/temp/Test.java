@@ -1,5 +1,11 @@
 package top.dayu.concurrent.temp;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.TreeMap;
+
 /**
  * @Classname Test
  * @Description TODO
@@ -13,15 +19,15 @@ public class Test {
 
     public static void main(String[] args) throws Exception{
 
-        //todo happens-before
+        String result = "{\"param\":\"{\"code\":\"0\",\"message\":\"成功\",\"result\":[{\"claimStatus\":\"审核中\"}]}\",\"success\":\"Y\"}";
+        String ss = StringEscapeUtils.unescapeJava(result);
+        System.out.println("result:" + ss );
+
+    //todo happens-before
         //todo volatile关键字
         //https://baijiahao.baidu.com/s?id=1663045221235771554&wfr=spider&for=pc
 
 
-
-
     }
-
-
 
 }
